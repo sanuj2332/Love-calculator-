@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love Calculator 💖</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --rose: #e8436a;
+    --blush: #f9a8c4;
+    --card: rgba(255,255,255,0.07);
+    --border: rgba(255,180,200,0.2);
+  }
+
+  body {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 20% 50%, #3b0d20 0%, #1a0a10 40%, #0d0508 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    overflow-y: auto;
+    position: relative;
+    padding: 2rem 1rem;
+  }
+
+  .hearts-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .heart-p {
+    position: absolute; bottom: -60px; opacity: 0;
+    animation: floatUp linear infinite; filter: blur(0.5px);
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 0; }
+    10%  { opacity: 0.18; }
+    90%  { opacity: 0.12; }
+    100% { transform: translateY(-110vh) rotate(360deg) scale(0.6); opacity: 0; }
+  }
+
+  .wrapper { position: relative; z-index: 1; width: min(480px, 95vw); }
+
+  .header { text-align: center; margin-bottom: 2.4rem; }
+  .header .crown { font-size: 2rem; display: block; margin-bottom: .4rem; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.15); } }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 8vw, 2.8rem); font-weight: 700;
+    background: linear-gradient(135deg, #f9a8c4 0%, #e8436a 50%, #f9a8c4 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.15;
+  }
+  .header p { color: rgba(249,168,196,0.6); font-size: .95rem; margin-top: .5rem; letter-spacing: .06em; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+    padding: 2rem 1.8rem; backdrop-filter: blur(18px);
+    box-shadow: 0 8px 60px rgba(232,67,106,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+
+  .field { margin-bottom: 1.4rem; }
+  .field label {
+    display: block; font-size: .8rem; letter-spacing: .14em; text-transform: uppercase;
+    color: rgba(249,168,196,0.7); margin-bottom: .5rem; font-weight: 600;
+  }
+  .field input {
+    width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    border-radius: 12px; padding: .85rem 1.1rem; color: #fff;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; outline: none;
+    transition: border-color .25s, background .25s, box-shadow .25s; letter-spacing: .03em;
+  }
+  .field input::placeholder { color: rgba(255,255,255,0.2); }
+  .field input:focus {
+    border-color: var(--rose); background: rgba(232,67,106,0.08);
+    box-shadow: 0 0 0 3px rgba(232,67,106,0.15);
+  }
+
+  .divider { display: flex; align-items: center; gap: .8rem; margin: .2rem 0 1.4rem; }
+  .divider::before, .divider::after { content:''; flex:1; height:1px; background: var(--border); }
+  .divider span { font-size: 1.3rem; animation: pulse 1.8s ease-in-out infinite; }
+
+  .btn {
+    width: 100%; padding: .95rem; border: none; cursor: pointer; border-radius: 14px;
+    font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, #e8436a 0%, #c0254a 100%);
+    box-shadow: 0 4px 24px rgba(232,67,106,0.4);
+    transition: transform .18s, box-shadow .18s; letter-spacing: .03em;
+    position: relative; overflow: hidden;
+  }
+  .btn::after {
+    content:''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(232,67,106,0.55); }
+  .btn:active { transform: translateY(0); }
+
+  .refresh-btn {
+    width: 100%; margin-top: .85rem; padding: .75rem;
+    border: 1px solid var(--border); background: transparent; border-radius: 12px;
+    color: rgba(249,168,196,0.7); font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem; letter-spacing: .05em; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: .5rem;
+    transition: background .2s, color .2s, border-color .2s, transform .2s;
+  }
+  .refresh-btn:hover {
+    background: rgba(232,67,106,0.1); color: var(--blush);
+    border-color: rgba(232,67,106,0.4); transform: translateY(-1px);
+  }
+  .refresh-btn .spin { display: inline-block; transition: transform .5s ease; }
+  .refresh-btn:hover .spin { transform: rotate(360deg); }
+
+  .result {
+    margin-top: 1.6rem; text-align: center; opacity: 0; transform: translateY(20px);
+    transition: opacity .5s ease, transform .5s ease; pointer-events: none;
+  }
+  .result.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+  .names-row {
+    display: flex; align-items: center; justify-content: center; gap: .6rem;
+    font-size: 1.1rem; color: rgba(255,255,255,0.7); margin-bottom: 1.2rem; font-style: italic;
+  }
+  .names-row .n { color: #fff; font-weight: 600; font-style: normal; }
+  .names-row .amp { color: var(--rose); font-size: 1.4rem; }
+
+  .ring-wrap { position: relative; width: 130px; height: 130px; margin: 0 auto 1.2rem; }
+  .ring-svg { width: 130px; height: 130px; transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 10; }
+  .ring-fill { fill: none; stroke: url(#rg); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1); }
+  .ring-label {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .pct {
+    font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 700;
+    background: linear-gradient(135deg, #f9a8c4, #e8436a);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1;
+  }
+  .pct-sub { font-size: .7rem; letter-spacing: .1em; color: rgba(255,255,255,0.35); text-transform: uppercase; }
+
+  .verdict { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-style: italic; color: var(--blush); margin-bottom: .5rem; }
+  .verdict-sub { font-size: .88rem; color: rgba(255,255,255,0.45); line-height: 1.5; }
+  .burst { font-size: 1.6rem; letter-spacing: .3rem; margin: .8rem 0 0; display: block; }
+
+  .footer {
+    text-align: center; margin-top: 1.6rem;
+    font-size: .8rem; letter-spacing: .1em; color: rgba(255,255,255,0.22);
+  }
+  .footer .hl { color: var(--rose); }
+</style>
+</head>
+<body>
+
+<div class="hearts-bg" id="heartsBg"></div>
+
+<div class="wrapper">
+  <div class="header">
+    <span class="crown">💘</span>
+    <h1>Love Calculator</h1>
+    <p>Find out your compatibility score</p>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label>Your Name</label>
+      <input type="text" id="name1" placeholder="Enter your name…" maxlength="40" autocomplete="off">
+    </div>
+
+    <div class="divider"><span>♥</span></div>
+
+    <div class="field">
+      <label>Partner's Name</label>
+      <input type="text" id="name2" placeholder="Enter partner's name…" maxlength="40" autocomplete="off">
+    </div>
+
+    <button class="btn" onclick="calculate()">Calculate Love ❤️</button>
+    <button class="refresh-btn" onclick="refreshPage()">
+      <span class="spin">🔄</span> Refresh / Try Again
+    </button>
+
+    <div class="result" id="result">
+      <div class="names-row">
+        <span class="n" id="rn1"></span>
+        <span class="amp">♥</span>
+        <span class="n" id="rn2"></span>
+      </div>
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130">
+          <defs>
+            <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#f9a8c4"/>
+              <stop offset="100%" style="stop-color:#e8436a"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg" cx="65" cy="65" r="55"/>
+          <circle class="ring-fill" id="ringFill" cx="65" cy="65" r="55"
+            stroke-dasharray="345.4" stroke-dashoffset="345.4"/>
+        </svg>
+        <div class="ring-label">
+          <span class="pct" id="pctNum">0%</span>
+          <span class="pct-sub">Love</span>
+        </div>
+      </div>
+      <div class="verdict" id="verdict"></div>
+      <div class="verdict-sub" id="verdictSub"></div>
+      <span class="burst" id="burst"></span>
+    </div>
+  </div>
+
+  <div class="footer">Made with <span class="hl">♥</span> by <span class="hl">Anuj</span></div>
+</div>
+
+<script>
+(function(){
+  const bg = document.getElementById('heartsBg');
+  const h = ['💗','💓','💖','💕','🌸','✨','💝','❤️'];
+  for(let i = 0; i < 22; i++){
+    const d = document.createElement('div');
+    d.className = 'heart-p';
+    d.textContent = h[Math.floor(Math.random() * h.length)];
+    d.style.left = Math.random() * 100 + '%';
+    d.style.animationDuration = (8 + Math.random() * 14) + 's';
+    d.style.animationDelay = (Math.random() * 14) + 's';
+    d.style.fontSize = (.6 + Math.random() * .9) + 'rem';
+    bg.appendChild(d);
+  }
+})();
+
+function lovePct(a, b) {
+  const str = (a + b).toLowerCase().replace(/\s/g, '');
+  let h = 0;
+  for(let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+  const str2 = (b + a).toLowerCase().replace(/\s/g, '');
+  let h2 = 0;
+  for(let i = 0; i < str2.length; i++) h2 = (Math.imul(31, h2) + str2.charCodeAt(i)) | 0;
+  return 30 + (Math.abs(h ^ h2) % 71);
+}
+
+const verdicts = [
+  { min:90, v:"Soulmates Forever 👑", s:"You two are written in the stars. A once-in-a-lifetime connection!" },
+  { min:75, v:"Perfect Match 🔥",     s:"Your chemistry is undeniable. You complete each other beautifully." },
+  { min:60, v:"Great Compatibility ✨",s:"A strong bond full of warmth, laughter, and genuine care." },
+  { min:45, v:"Good Potential 🌷",    s:"With a little nurturing, this love can truly blossom." },
+  { min:0,  v:"Opposites Attract 🌙", s:"Different hearts can still make beautiful music together." },
+];
+const bursts = { 90:'💖💖💖💖💖', 75:'💗💗💗💗', 60:'💓💓💓', 45:'💕💕', 0:'🌸🌸' };
+
+function calculate() {
+  const n1 = document.getElementById('name1').value.trim();
+  const n2 = document.getElementById('name2').value.trim();
+  if(!n1 || !n2) { shake(); return; }
+
+  const pct = lovePct(n1, n2);
+  const vd  = verdicts.find(v => pct >= v.min);
+
+  document.getElementById('rn1').textContent = n1;
+  document.getElementById('rn2').textContent = n2;
+
+  const result = document.getElementById('result');
+  result.classList.remove('show');
+
+  const ring = document.getElementById('ringFill');
+  ring.style.transition = 'none';
+  ring.style.strokeDashoffset = '345.4';
+  document.getElementById('pctNum').textContent = '0%';
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    result.classList.add('show');
+    ring.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)';
+    ring.style.strokeDashoffset = 345.4 * (1 - pct / 100);
+
+    let cur = 0;
+    const step = pct / 60;
+    const iv = setInterval(() => {
+      cur = Math.min(cur + step, pct);
+      document.getElementById('pctNum').textContent = Math.round(cur) + '%';
+      if(cur >= pct) clearInterval(iv);
+    }, 16);
+
+    document.getElementById('verdict').textContent    = vd.v;
+    document.getElementById('verdictSub').textContent = vd.s;
+    const bKey = Object.keys(bursts).reverse().find(k => pct >= +k);
+    document.getElementById('burst').textContent = bursts[bKey];
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }));
+}
+
+function refreshPage() {
+  document.getElementById('name1').value = '';
+  document.getElementById('name2').value = '';
+  const result = document.getElementById('result');
+  result.classList.remove('show');
+  const ring = document.getElementById('ringFill');
+  ring.style.transition = 'none';
+  ring.style.strokeDashoffset = '345.4';
+  document.getElementById('pctNum').textContent = '0%';
+  document.getElementById('name1').focus();
+}
+
+function shake() {
+  const card = document.querySelector('.card');
+  let i = 0;
+  const dirs = [8,-8,6,-6,4,-4,0];
+  const t = setInterval(() => {
+    card.style.transform = `translateX(${dirs[i++]}px)`;
+    if(i >= dirs.length) { clearInterval(t); card.style.transform = ''; }
+  }, 50);
+}
+
+document.addEventListener('keydown', e => { if(e.key === 'Enter') calculate(); });
+</script>
+</body>
+</html>
